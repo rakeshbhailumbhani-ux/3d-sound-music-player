@@ -1,0 +1,6 @@
+{
+  "name": "3D Sound Music Player",
+  "description": "A feature-rich 3D spatial audio music player with customizable L/R microsecond delay settings (0 to 300 µs), 3D spatial panner, 10-band EQ, 3D audio visualizer, reverb, bass boost, and custom playlist controls.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
