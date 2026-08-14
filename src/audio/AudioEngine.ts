@@ -1,106 +1,4 @@
-export class AudioEngine {
-  private audioContext: AudioContext | null = null;
-  private sourceNode: MediaElementAudioSourceNode | null = null;
-  private gainNode: GainNode | null = null;
-  private analyserNode: AnalyserNode | null = null;
-  private pannerNode: PannerNode | null = null;
-  private compressorNode: DynamicsCompressorNode | null = null;
-
-  private audioElement: HTMLAudioElement;
-
-  private volume = 1;
-  private playbackRate = 1;
-
-  private listeners: {
-    onEnded?: () => void;
-    onTimeUpdate?: (currentTime: number, duration: number) => void;
-    onSpatialChange?: (
-      x: number,
-      z: number,
-      leftDelayMs: number,
-      rightDelayMs: number
-    ) => void;
-  } = {};
-
-  constructor() {
-    this.audioElement = new Audio();
-
-    // Local / same-origin audio માટે
-    this.audioElement.preload = 'auto';
-
-    this.audioElement.addEventListener('ended', () => {
-      this.listeners.onEnded?.();
-    });
-
-    this.audioElement.addEventListener('timeupdate', () => {
-      this.listeners.onTimeUpdate?.(
-        this.audioElement.currentTime,
-        this.audioElement.duration || 0
-      );
-    });
-
-    this.audioElement.addEventListener('error', () => {
-      console.error(
-        'Audio error:',
-        this.audioElement.error
-      );
-    });
-  }
-
-  public get activeElement(): HTMLAudioElement {
-    return this.audioElement;
-  }
-
-  public get inactiveElement(): HTMLAudioElement {
-    return this.audioElement;
-  }
-
-  public get activeGainNode(): GainNode | null {
-    return this.gainNode;
-  }
-
-  public get inactiveGainNode(): GainNode | null {
-    return this.gainNode;
-  }
-
-  public setListeners(listeners: typeof this.listeners) {
-    this.listeners = {
-      ...this.listeners,
-      ...listeners,
-    };
-  }
-
-  /**
-   * Initialize Web Audio
-   */
-  public initContext() {
-    if (this.audioContext) {
-      return;
-    }
-
-    const AudioContextClass =
-      window.AudioContext ||
-      (window as any).webkitAudioContext;
-
-    if (!AudioContextClass) {
-      console.warn('Web Audio API is not supported.');
-      return;
-    }
-
-    this.audioContext = new AudioContextClass();
-
-    /*
-     * Important:
-     * createMediaElementSource must be created only once
-     * for this audio element.
-     */
-    this.sourceNode =
-      this.audioContext.createMediaElementSource(
-        this.audioElement
-      );
-
-    this.gainNode =
-      this.audioContext.createGain();
+    this.audioElement.curre      this.audioContext.createGain();
 
     this.gainNode.gain.value = this.volume;
 
@@ -151,69 +49,6 @@ export class AudioEngine {
      *      ↓
      * Gain
      *      ↓
-     * 3D Panner
-     *      ↓
-     * Compressor
-     *      ↓
-     * Analyser
-     *      ↓
-     * Speaker
-     */
-    this.sourceNode.connect(this.gainNode);
-
-    this.gainNode.connect(this.pannerNode);
-
-    this.pannerNode.connect(
-      this.compressorNode
-    );
-
-    this.compressorNode.connect(
-      this.analyserNode
-    );
-
-    this.analyserNode.connect(
-      this.audioContext.destination
-    );
-  }
-
-  /**
-   * Resume AudioContext
-   */
-  public async resumeContext() {
-    if (!this.audioContext) {
-      this.initContext();
-    }
-
-    if (
-      this.audioContext &&
-      this.audioContext.state === 'suspended'
-    ) {
-      await this.audioContext.resume();
-    }
-  }
-
-  /**
-   * Load MP3
-   */
-  public async loadTrack(url: string) {
-    await this.resumeContext();
-
-    this.audioElement.pause();
-
-    this.audioElement.currentTime = 0;
-
-    this.audioElement.src = url;
-
-    this.audioElement.load();
-
-    console.log('Loading audio:', url);
-  }
-
-  /**
-   * Play
-   */
-  public async play() {
-    await this.resumeContext();
 
     try {
       await this.audioElement.play();
@@ -367,7 +202,7 @@ export class AudioEngine {
         0.01
       );
 
-      this.pannerNode.positionZ.setTargetAtTime(
+      (
         z,
         this.audioContext.currentTime,
         0.01
