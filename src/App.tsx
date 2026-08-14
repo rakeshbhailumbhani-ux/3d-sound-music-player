@@ -52,7 +52,17 @@ export default function App() {
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(0);
 
   // Microsecond & Real Track Delay Settings (Main delay unit is ms: 0-300ms)
-  const [microDelaySettings, setMicroDelaySettings] = useState<MicrosecondDelaySettings>({
+  const [microDelaySettings, setMicroDelaySettings] = useState<MicrosecondDelaySettings>({leftDelayUs: 300,
+    rightDelayUs: 0,
+    enabled: true,
+
+    leftMuted: false,
+    rightMuted: false,
+
+    autoOrbit8D: false,
+    orbitSpeed: 1.0,
+    centerLockEnabled: true,
+    maxDelayRangeUs: 300,
     leftDelayUs: 300, // 300 ms main 3D delay
     rightDelayUs: 0,
     enabled: true,
@@ -235,25 +245,57 @@ export default function App() {
   };
 
   // Microsecond Delay Handler
-  const handleMicroDelayChange = (updated: Partial<MicrosecondDelaySettings>) => {
-    const newSettings = { ...microDelaySettings, ...updated };
-    setMicroDelaySettings(newSettings);
-
-    audioEngine.setMicrosecondDelay(
-      newSettings.leftDelayUs,
-      newSettings.rightDelayUs,
-      newSettings.enabled,
-      newSettings.centerLockEnabled ?? true,
-      newSettings.maxDelayRangeUs ?? 300,
-      newSettings.leftMuted ?? false,
-      newSettings.rightMuted ?? false
-    );
-
-    if (updated.autoOrbit8D !== undefined || updated.orbitSpeed !== undefined) {
-      audioEngine.setAutoOrbit8D(newSettings.autoOrbit8D, newSettings.orbitSpeed);
-    }
+  const handleMicroDelayChange = (
+  updated: Partial<MicrosecondDelaySettings>
+) => {
+  const newSettings = {
+    ...microDelaySettings,
+    ...updated,
   };
 
+  setMicroDelaySettings(newSettings);
+
+  // -----------------------------------------
+  // L/R DELAY
+  // -----------------------------------------
+  audioEngine.setMicrosecondDelay(
+    newSettings.leftDelayUs,
+    newSettings.rightDelayUs,
+    newSettings.enabled
+  );
+
+  // -----------------------------------------
+  // L/R MUTE
+  // -----------------------------------------
+  audioEngine.setChannelMute(
+    newSettings.leftMuted ?? false,
+    newSettings.rightMuted ?? false
+  );
+
+  // -----------------------------------------
+  // 8D AUTO ORBIT
+  // -----------------------------------------
+  if (
+    updated.autoOrbit8D !== undefined ||
+    updated.orbitSpeed !== undefined
+  ) {
+    audioEngine.setAutoOrbit8D(
+      newSettings.autoOrbit8D ?? false,
+      newSettings.orbitSpeed ?? 1
+    );
+  }
+
+  // -----------------------------------------
+  // 3D POSITION
+  // -----------------------------------------
+  if (
+    updated.x !== undefined ||
+    updated.y !== undefined ||
+    updated.z !== undefined
+  ) {
+    // અહીં જરૂર નથી જો Spatial panel અલગ handler વાપરે છે
+  }
+};
   // 3D Spatial Panner Handler
   const handleSpatialChange = (updated: Partial<Spatial3DSettings>) => {
     const newSettings = { ...spatialSettings, ...updated };
