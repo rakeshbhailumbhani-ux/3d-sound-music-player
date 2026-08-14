@@ -895,77 +895,70 @@ export class AudioEngine {
    */
 
   public setMicrosecondDelay(
-    leftMs: number,
-    rightMs: number,
-    enabled = true
+  leftMs: number,
+  rightMs: number,
+  enabled = true
+) {
+  this.leftDelayMs = Math.max(
+    0,
+    Math.min(300, leftMs)
+  );
+
+  this.rightDelayMs = Math.max(
+    0,
+    Math.min(300, rightMs)
+  );
+
+  if (
+    !this.audioContext ||
+    !this.leftDelayNode ||
+    !this.rightDelayNode
   ) {
-    this.leftDelayMs =
-      Math.max(
-        0,
-        Math.min(
-          1000,
-          leftMs
-        )
-      );
-
-    this.rightDelayMs =
-      Math.max(
-        0,
-        Math.min(
-          1000,
-          rightMs
-        )
-      );
-
-    if (
-      !this.audioContext ||
-      !this.leftDelayNode ||
-      !this.rightDelayNode
-    ) {
-      return;
-    }
-
-    const now =
-      this.audioContext.currentTime;
-
-    const left =
-      enabled
-        ? this.leftDelayMs / 1000
-        : 0;
-
-    const right =
-      enabled
-        ? this.rightDelayMs / 1000
-        : 0;
-
-    this.leftDelayNode.delayTime.setTargetAtTime(
-      left,
-      now,
-      0.01
+    console.warn(
+      "Delay nodes not initialized yet"
     );
-
-    this.rightDelayNode.delayTime.setTargetAtTime(
-      right,
-      now,
-      0.01
-    );
-
-    console.log(
-      `Delay L=${this.leftDelayMs}ms R=${this.rightDelayMs}ms enabled=${enabled}`
-    );
-
-    this.listeners.onSpatialChange?.(
-      0,
-      -1,
-      enabled
-        ? this.leftDelayMs
-        : 0,
-      enabled
-        ? this.rightDelayMs
-        : 0
-    );
+    return;
   }
 
+  const now =
+    this.audioContext.currentTime;
+
+  const leftDelay =
+    enabled
+      ? this.leftDelayMs / 1000
+      : 0;
+
+  const rightDelay =
+    enabled
+      ? this.rightDelayMs / 1000
+      : 0;
+
+  this.leftDelayNode.delayTime.cancelScheduledValues(now);
+  this.rightDelayNode.delayTime.cancelScheduledValues(now);
+
+  this.leftDelayNode.delayTime.setTargetAtTime(
+    leftDelay,
+    now,
+    0.01
+  );
+
+  this.rightDelayNode.delayTime.setTargetAtTime(
+    rightDelay,
+    now,
+    0.01
+  );
+
+  console.log(
+    `3D DELAY → L=${this.leftDelayMs}ms R=${this.rightDelayMs}ms`
+  );
+
+  this.listeners.onSpatialChange?.(
+    0,
+    -1,
+    enabled ? this.leftDelayMs : 0,
+    enabled ? this.rightDelayMs : 0
+  );
+  }
   /*
    * ---------------------------------------------------------
    * CHANNEL MUTE
