@@ -23,7 +23,9 @@ export interface MicrosecondDelaySettings {
   orbitSpeed: number; // 0.2 to 3.0
   centerLockEnabled?: boolean; // Keeps L+R central vocal sound solid and unshifted
   maxDelayRangeUs?: number; // Max delay limit in milliseconds (e.g., 300 ms main range, up to 2000 ms max)
-  maxDelayRangeMs?: number;
+  maxDelayRangeMs?: number;  
+	leftMuted: boolean;
+  rightMuted: boolean;
 }
 
 export interface Spatial3DSettings {
