@@ -1,4 +1,4 @@
-    this.audioElement.curre      this.audioContext.createGain();
+          this.audioContext.createGain();
 
     this.gainNode.gain.value = this.volume;
 
